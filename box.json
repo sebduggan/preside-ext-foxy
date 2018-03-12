@@ -1,8 +1,8 @@
 {
     "name":"PresideCMS Extension: Foxy E-Commerce",
     "type":"preside-extensions",
-    "version":"1.0.0",
-    "location":"https://github.com/sebduggan/preside-ext-foxy/archive/v1.0.0.zip",
+    "version":"1.0.1",
+    "location":"https://github.com/sebduggan/preside-ext-foxy/archive/v1.0.1.zip",
     "author":"Seb Duggan",
     "directory":"application/extensions",
     "homepage":"https://github.com/sebduggan/preside-ext-foxy",
