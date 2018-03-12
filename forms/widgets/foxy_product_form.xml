@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form i18nBaseUri="widgets.foxy_product_form:">
+	<tab>
+		<fieldset>
+			<field name="foxy_product"   control="objectPicker" object="foxy_product" />
+			<field name="foxy_shipping"  control="objectPicker" object="foxy_shipping" multiple="true" />
+		</fieldset>
+		<fieldset id="content">
+			<field name="description"    control="richeditor" />
+			<field name="button_label" />
+			<field name="show_image"     control="yesNoSwitch" />
+		</fieldset>
+		<fieldset id="discounts">
+			<field name="discount_price" type="numeric" />
+			<field name="discount_code"  maxlength="15" />
+			<field name="discount_strap" />
+			<field name="discount_label" />
+		</fieldset>
+	</tab>
+</form>

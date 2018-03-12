@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form i18nBaseUri="system-config.foxy:">
+	<tab>
+		<fieldset>
+			<field name="sub_domain"      required="true" />
+			<field name="api_key"         required="true" />
+			<field name="currency_code"   required="true" maxlength="3" />
+			<field name="currency_symbol" required="true" maxlength="5" />
+		</fieldset>
+	</tab>
+</form>
