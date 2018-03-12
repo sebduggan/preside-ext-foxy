@@ -14,7 +14,7 @@ component {
 			product.code    = product.sku;
 			product.imageId = product.image;
 			product.image   = event.buildLink( assetId=product.imageId, derivative="foxySquare" );
-			product.url     = event.getCurrentUrl( false );
+			product.url     = event.getBaseUrl() & event.getCurrentUrl( false );
 			product.hmac    = {
 				  name  = foxyService.hmacEncode( product.sku, "name" , product.name  )
 				, code  = foxyService.hmacEncode( product.sku, "code" , product.code  )
