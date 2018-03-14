@@ -1,24 +1,21 @@
 component {
 
-	property name="foxyService" inject="foxyService";
+	property name="foxyService"          inject="foxyService";
 
 	public string function datafeed( event, rc, prc, args={} ) {
 		var datafeed = rc.FoxyData ?: "";
 
 		try {
-			var foxyData = foxyService.processDatafeed( datafeed );
+			var foxyData     = foxyService.processDatafeed( datafeed );
+			var transactions = foxyData.transactions ?: [];
 
-			for( var transaction in foxyData.transactions ) {
-				announceInterception( "preFoxyDatafeedProcessTransaction" );
-				announceInterception( "postFoxyDatafeedProcessTransaction" );
-			}
-
+			foxyService.processTransactions( transactions );
 			event.renderData( type="text", data="foxy" );
 		}
 		catch( any e ) {
-			event.renderData( type="text", data="Error: " & e.message );
+			var message = e.message.len() ? e.message : e.detail;
+			event.renderData( type="text", data="Error: " & message );
 		}
-
 	}
 
 }

@@ -11,8 +11,10 @@ component {
 		var logbox              = arguments.config.logbox              ?: {};
 		var environments        = arguments.config.environments        ?: {};
 
-		interceptorSettings.customInterceptionPoints.append( "preFoxyDatafeedProcessTransaction"  );
-		interceptorSettings.customInterceptionPoints.append( "postFoxyDatafeedProcessTransaction" );
+		interceptorSettings.customInterceptionPoints.append( "preFoxyProcessTransaction"    );
+		interceptorSettings.customInterceptionPoints.append( "postFoxyProcessTransaction"   );
+		interceptorSettings.customInterceptionPoints.append( "preFoxyInsertTransaction"     );
+		interceptorSettings.customInterceptionPoints.append( "preFoxyInsertTransactionItem" );
 
 		settings.assetmanager.derivatives.foxySquare = {
 			  permissions     = "inherit"
