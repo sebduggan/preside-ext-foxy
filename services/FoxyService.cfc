@@ -19,14 +19,18 @@ component {
 		var settings  = getFoxySettings();
 		var decoded   = urlDecode( arguments.feedData, "iso-8859-1" );
 		var xmlText   = _getFoxyRC4().rc4Decrypt( src=decoded, key=settings.api_key );
+		var xmlHash   = hash( xmlText );
 		var xmlParsed = xmlParse( xmlText );
 		var foxyData  = _xmlToStruct( xmlParsed ).foxyData;
-		var json      = serializeJSON( foxyData );
+		var exists    = $getPresideObject( "foxy_datafeed" ).dataExists( filter={ xml_hash=xmlHash } );
 
-		$getPresideObject( "foxy_datafeed" ).insertData( {
-			  raw_xml = xmlText
-			, json    = json
-		} );
+		if ( !exists ) {
+			$getPresideObject( "foxy_datafeed" ).insertData( {
+				  raw_xml  = xmlText
+				, xml_hash = xmlHash
+				, json     = serializeJSON( foxyData )
+			} );
+		}
 
 		return foxyData;
 	}
