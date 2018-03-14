@@ -1,4 +1,5 @@
 /**
+ * @labelField        transaction_date
  * @dataManagerGroup  Foxy
  */
 

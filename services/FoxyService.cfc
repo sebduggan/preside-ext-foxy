@@ -35,6 +35,68 @@ component {
 		return foxyData;
 	}
 
+	public void function processTransactions( required array transactions ) {
+		transaction {
+			for( var transaction in arguments.transactions ) {
+				$announceInterception( "preFoxyProcessTransaction" , { transaction=transaction } );
+				processTransaction( transaction );
+				$announceInterception( "postFoxyProcessTransaction", { transaction=transaction } );
+			}
+		}
+	}
+
+	public void function processTransaction( required struct transaction ) {
+		var dao      = $getPresideObject( "foxy_transaction" );
+		var itemDao  = $getPresideObject( "foxy_transaction_item" );
+		var data     = {};
+		var itemData = {};
+
+		if ( dao.dataExists( filter={ transaction_id=arguments.transaction.id } ) ) {
+			return;
+		}
+
+		data = {
+			  transaction_id      = arguments.transaction.id                   ?: ""
+			, transaction_date    = arguments.transaction.transaction_date     ?: ""
+			, product_total       = arguments.transaction.product_total        ?: 0
+			, shipping_total      = arguments.transaction.shipping_total       ?: 0
+			, order_total         = arguments.transaction.order_total          ?: 0
+			, payment_gateway     = arguments.transaction.payment_gateway_type ?: ""
+			, receipt_url         = arguments.transaction.receipt_url          ?: ""
+			, customer_id         = arguments.transaction.customer_id          ?: ""
+			, customer_email      = arguments.transaction.customer_email       ?: ""
+			, customer_phone      = arguments.transaction.customer_phone       ?: ""
+			, customer_first_name = arguments.transaction.customer_first_name  ?: ""
+			, customer_last_name  = arguments.transaction.customer_last_name   ?: ""
+			, customer_address1   = arguments.transaction.customer_address1    ?: ""
+			, customer_address2   = arguments.transaction.customer_address2    ?: ""
+			, customer_city       = arguments.transaction.customer_city        ?: ""
+			, customer_postcode   = arguments.transaction.customer_postal_code ?: ""
+			, customer_country    = arguments.transaction.customer_country     ?: ""
+			, shipping_first_name = arguments.transaction.shipping_first_name  ?: ""
+			, shipping_last_name  = arguments.transaction.shipping_last_name   ?: ""
+			, shipping_address1   = arguments.transaction.shipping_address1    ?: ""
+			, shipping_address2   = arguments.transaction.shipping_address2    ?: ""
+			, shipping_city       = arguments.transaction.shipping_city        ?: ""
+			, shipping_postcode   = arguments.transaction.shipping_postal_code ?: ""
+			, shipping_country    = arguments.transaction.shipping_country     ?: ""
+		};
+		$announceInterception( "preFoxyInsertTransaction", { data=data } );
+		var transactionId = dao.insertData( data );
+
+		for( var item in transaction.transaction_details ) {
+			itemData = {
+				  code        = item.product_code     ?: ""
+				, quantity    = item.product_quantity ?: 0
+				, price       = item.product_price    ?: 0
+				, transaction = transactionId
+				, product     = _getProductIdFromCode( item.product_code ?: "" )
+			};
+			$announceInterception( "preFoxyInsertTransactionItem", { data=itemData } );
+			itemDao.insertData( itemData );
+		}
+	}
+
 	public string function hmacEncode( required string sku, required string name, required string value ) {
 		var settings     = getFoxySettings();
 		var stringToHash = arguments.sku & arguments.name & arguments.value;
@@ -73,6 +135,11 @@ component {
 
 
 // PRIVATE METHODS
+	private string function _getProductIdFromCode( required string code ) {
+		var product = $getPresideObject( "foxy_product" ).selectData( filter={ sku=arguments.code }, selectFields=[ "id" ] );
+		return product.id;
+	}
+
 	private any function _xmlToStruct( required xml xml ) {
 		var s = {};
 
