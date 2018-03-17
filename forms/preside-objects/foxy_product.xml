@@ -8,6 +8,7 @@
 			<field binding="foxy_product.sku" />
 			<field binding="foxy_product.price" />
 			<field binding="foxy_product.image" />
+			<field binding="foxy_product.product_page" />
 		</fieldset>
 	</tab>
 </form>
