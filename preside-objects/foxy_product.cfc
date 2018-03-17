@@ -9,6 +9,6 @@ component dataManagerGroup="Foxy" {
 	property name="category" type="text"    dbtype="varchar" maxlength=100 required=false;
 	property name="sku"      type="text"    dbtype="varchar" maxlength=20  required=true;
 	property name="price"    type="numeric" dbtype="float"                 required=true;
-	property name="image"    relationship="many-to-one" relatedTo="asset" allowedTypes="image" required=true;
-
+	property name="image"        relationship="many-to-one" relatedTo="asset" allowedTypes="image" required=true;
+	property name="product_page" relationship="many-to-one" relatedTo="page";
 }
