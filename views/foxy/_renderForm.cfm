@@ -1,8 +1,9 @@
 <cfscript>
 	product        = args.product        ?: {};
-	buttonLabel    = args.button_label   ?: "Add to basket";
+	buttonLabel    = len( args.button_label ?: "" ) ? args.button_label : "Add to basket";
 	description    = args.description    ?: "";
-	showImage      = isTrue( args.show_image ?: "" );
+	outOfStock     = isTrue( args.out_of_stock ?: "" );
+	showImage      = isTrue( args.show_image   ?: "" );
 	discountPrice  = args.discount_price ?: "";
 	discountLabel  = args.discount_label ?: "";
 	discountStrap  = args.discount_strap ?: "";
@@ -24,6 +25,7 @@
 				#renderContent( renderer="richeditor", data=description )#
 			</div>
 		</cfif>
+
 		<form action="#formAction#" method="post" accept-charset="utf-8">
 			<meta itemprop="brand" content="#product.brand#">
 			<meta itemprop="name" content="#product.name#">
@@ -31,14 +33,16 @@
 			<meta itemprop="identifier" content="sku:#product.sku#">
 			<meta itemprop="image" content="#product.image#">
 
-			<input type="hidden" name="name||#product.hmac.name#" value="#product.name#">
-			<input type="hidden" name="price||#product.hmac.price#" value="#product.price#">
-			<cfif len( product.discount ?: "" )>
-				<input type="hidden" name="discount_price_amount||#product.hmac.discount#" value="#product.discount#">
+			<cfif !outOfStock>
+				<input type="hidden" name="name||#product.hmac.name#" value="#product.name#">
+				<input type="hidden" name="price||#product.hmac.price#" value="#product.price#">
+				<cfif len( product.discount ?: "" )>
+					<input type="hidden" name="discount_price_amount||#product.hmac.discount#" value="#product.discount#">
+				</cfif>
+				<input type="hidden" name="code||#product.hmac.code#" value="#product.code#">
+				<input type="hidden" name="image||#product.hmac.image#" value="#product.image#">
+				<input type="hidden" name="url||#product.hmac.url#" value="#product.url#">
 			</cfif>
-			<input type="hidden" name="code||#product.hmac.code#" value="#product.code#">
-			<input type="hidden" name="image||#product.hmac.image#" value="#product.image#">
-			<input type="hidden" name="url||#product.hmac.url#" value="#product.url#">
 
 			<cfif showImage>
 				<img src="#displayImageSmall#" srcset="#displayImageSmall# 200w, #displayImageLarge# 400w" width="200">
@@ -61,23 +65,27 @@
 				<meta itemprop="priceCurrency" content="#currencyCode#">
 			</h3>
 
-			<p class="foxy-action">
-				<input type="submit" value="#buttonLabel#" class="foxy-cart-submit">
-			</p>
-
-			<cfif shippingRates.recordCount>
-				<p class="foxy-shipping">
-					<strong>Postage</strong><br />
-					<cfloop query="shippingRates">
-						#shippingRates.label#:
-						<cfif shippingRates.price eq 0>
-							FREE
-						<cfelse>
-							#currencySymbol##decimalFormat( shippingRates.price )#
-						</cfif>
-						<br />
-					</cfloop>
+			<cfif outOfStock>
+				<h4>Out of stock</h4>
+			<cfelse>
+				<p class="foxy-action">
+					<input type="submit" value="#buttonLabel#" class="foxy-cart-submit">
 				</p>
+
+				<cfif shippingRates.recordCount>
+					<p class="foxy-shipping">
+						<strong>Postage</strong><br />
+						<cfloop query="shippingRates">
+							#shippingRates.label#:
+							<cfif shippingRates.price eq 0>
+								FREE
+							<cfelse>
+								#currencySymbol##decimalFormat( shippingRates.price )#
+							</cfif>
+							<br />
+						</cfloop>
+					</p>
+				</cfif>
 			</cfif>
 		</form>
 	</div>
