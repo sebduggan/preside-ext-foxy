@@ -9,6 +9,7 @@
 			<field name="description"    control="richeditor" />
 			<field name="button_label" />
 			<field name="show_image"     control="yesNoSwitch" />
+			<field name="out_of_stock"   control="yesNoSwitch" />
 		</fieldset>
 		<fieldset id="discounts">
 			<field name="discount_price" type="numeric" />
