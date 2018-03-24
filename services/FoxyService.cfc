@@ -22,17 +22,18 @@ component {
 		var xmlHash   = hash( xmlText );
 		var xmlParsed = xmlParse( xmlText );
 		var foxyData  = _xmlToStruct( xmlParsed ).foxyData;
-		var exists    = $getPresideObject( "foxy_datafeed" ).dataExists( filter={ xml_hash=xmlHash } );
+		var existing  = $getPresideObject( "foxy_datafeed" ).selectData( filter={ xml_hash=xmlHash }, selectFields=[ "id" ] );
 
-		if ( !exists ) {
-			var datafeedId = $getPresideObject( "foxy_datafeed" ).insertData( {
+		if ( !existing.recordcount ) {
+			foxyData.datafeedId = $getPresideObject( "foxy_datafeed" ).insertData( {
 				  raw_xml  = xmlText
 				, xml_hash = xmlHash
 				, json     = serializeJSON( foxyData )
 			} );
+		} else {
+			foxyData.datafeedId = existing.id;
 		}
 
-		foxyData.datafeedId = datafeedId;
 		return foxyData;
 	}
 
