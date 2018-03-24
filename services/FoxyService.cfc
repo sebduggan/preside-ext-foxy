@@ -25,27 +25,28 @@ component {
 		var exists    = $getPresideObject( "foxy_datafeed" ).dataExists( filter={ xml_hash=xmlHash } );
 
 		if ( !exists ) {
-			$getPresideObject( "foxy_datafeed" ).insertData( {
+			var datafeedId = $getPresideObject( "foxy_datafeed" ).insertData( {
 				  raw_xml  = xmlText
 				, xml_hash = xmlHash
 				, json     = serializeJSON( foxyData )
 			} );
 		}
 
+		foxyData.datafeedId = datafeedId;
 		return foxyData;
 	}
 
-	public void function processTransactions( required array transactions ) {
+	public void function processTransactions( required array transactions, required string datafeedId ) {
 		transaction {
 			for( var transaction in arguments.transactions ) {
-				$announceInterception( "preFoxyProcessTransaction" , { transaction=transaction } );
-				processTransaction( transaction );
-				$announceInterception( "postFoxyProcessTransaction", { transaction=transaction } );
+				$announceInterception( "preFoxyProcessTransaction" , { transaction=transaction, datafeedId=arguments.datafeedId } );
+				processTransaction( transaction, arguments.datafeedId );
+				$announceInterception( "postFoxyProcessTransaction", { transaction=transaction, datafeedId=arguments.datafeedId } );
 			}
 		}
 	}
 
-	public void function processTransaction( required struct transaction ) {
+	public void function processTransaction( required struct transaction, required string datafeedId ) {
 		var dao      = $getPresideObject( "foxy_transaction" );
 		var itemDao  = $getPresideObject( "foxy_transaction_item" );
 		var data     = {};
@@ -56,7 +57,8 @@ component {
 		}
 
 		data = {
-			  transaction_id      = arguments.transaction.id                   ?: ""
+			  datafeed            = arguments.datafeedId
+			, transaction_id      = arguments.transaction.id                   ?: ""
 			, transaction_date    = arguments.transaction.transaction_date     ?: ""
 			, product_total       = arguments.transaction.product_total        ?: 0
 			, shipping_total      = arguments.transaction.shipping_total       ?: 0
