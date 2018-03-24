@@ -10,7 +10,7 @@ component {
 			var foxyData     = foxyService.processDatafeed( datafeed );
 			var transactions = foxyData.transactions ?: [];
 
-			foxyService.processTransactions( transactions );
+			foxyService.processTransactions( transactions, foxyData.datafeedId );
 			event.renderData( type="text", data="foxy" );
 		}
 		catch( any e ) {
