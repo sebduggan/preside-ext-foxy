@@ -1,10 +1,12 @@
 /**
- * @dataManagerGroup Foxy
- * @versioned        false
+ * @labelField                   xml_hash
+ * @dataManagerGroup             Foxy
+ * @versioned                    false
+ * @dataManagerDefaultSortOrder  datecreated desc
+ * @dataManagerGridFields        xml_hash,datecreated
  */
 
 component dataManagerGroup="Foxy" {
-	property name="label"    required=false formula="date_format( ${prefix}datecreated, get_format( date, 'ISO' ) )";
 	property name="raw_xml"  type="string" dbtype="text";
 	property name="json"     type="string" dbtype="text";
 	property name="xml_hash" type="string" dbtype="varchar" maxlength=32;

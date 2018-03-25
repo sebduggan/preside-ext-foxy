@@ -1,6 +1,8 @@
 /**
- * @labelField        transaction_id
- * @dataManagerGroup  Foxy
+ * @labelField                   transaction_id
+ * @dataManagerGroup             Foxy
+ * @dataManagerDefaultSortOrder  transaction_id desc
+ * @dataManagerGridFields        transaction_id,customer_first_name,customer_last_name,customer_country,transaction_date,order_total
  */
 
 component {
