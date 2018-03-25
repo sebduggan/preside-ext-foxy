@@ -87,7 +87,11 @@ component {
 		$announceInterception( "preFoxyInsertTransaction", { data=data } );
 		var transactionId = dao.insertData( data );
 
-		for( var item in transaction.transaction_details ) {
+		var items = transaction.transaction_details ?: [];
+		if ( isStruct( items ) ) {
+			items = items.transaction_detail ?: [];
+		}
+		for( var item in items ) {
 			itemData = {
 				  code        = item.product_code     ?: ""
 				, quantity    = item.product_quantity ?: 0
