@@ -1,6 +1,8 @@
 /**
  * @noLabel
- * @dataManagerGroup  Foxy
+ * @dataManagerGroup             Foxy
+ * @dataManagerDefaultSortOrder  datecreated desc
+ * @dataManagerGridFields        transaction,product,quantity,price
  */
 
 component {
