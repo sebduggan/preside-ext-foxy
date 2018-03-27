@@ -9,7 +9,7 @@ component {
 	property name="transaction_id"      type="string"  dbtype="varchar" maxlength=15  required=true;
 	property name="transaction_date"    type="date"    dbtype="datetime"              required=true;
 
-	property name="datafeed"            relationship="many-to-one" relatedTo="foxy_datafeed";
+	property name="payload"             type="string"  dbtype="text" control="none";
 	property name="items"               relationship="one-to-many" relatedTo="foxy_transaction_item" relationshipKey="transaction";
 
 	property name="product_total"       type="numeric" dbtype="float"                 required=true;
