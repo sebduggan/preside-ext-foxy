@@ -1,7 +1,7 @@
 /**
  * @labelField                   transaction_id
  * @dataManagerGroup             Foxy
- * @dataManagerDefaultSortOrder  transaction_id desc
+ * @dataManagerDefaultSortOrder  transaction_date desc
  * @dataManagerGridFields        transaction_id,customer_first_name,customer_last_name,customer_country,transaction_date,order_total
  */
 
