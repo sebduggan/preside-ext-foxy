@@ -2,7 +2,7 @@ component extends="preside.system.services.security.AntiSamyService" {
 
 	private void function _setupPolicyFiles() {
 		var libPath       = _getLibPath();
-		var customLibPath = ExpandPath( "/application/extensions/preside-ext-foxy/services/security/antisamylib" );
+		var customLibPath = ExpandPath( "/application/extensions/preside-ext-foxy/services/security/antisamycustom" );
 
 		_setPolicyFiles ( {
 			  antisamy = libPath       & '/antisamy-anythinggoes-1.4.4.xml'
