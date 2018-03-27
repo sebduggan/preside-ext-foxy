@@ -28,6 +28,7 @@ component {
 	property name="customer_address1"   type="string"  dbtype="varchar" maxlength=100;
 	property name="customer_address2"   type="string"  dbtype="varchar" maxlength=100;
 	property name="customer_city"       type="string"  dbtype="varchar" maxlength=100;
+	property name="customer_region"     type="string"  dbtype="varchar" maxlength=100;
 	property name="customer_postcode"   type="string"  dbtype="varchar" maxlength=20;
 	property name="customer_country"    type="string"  dbtype="char"    maxlength=2;
 
@@ -36,6 +37,7 @@ component {
 	property name="shipping_address1"   type="string"  dbtype="varchar" maxlength=100;
 	property name="shipping_address2"   type="string"  dbtype="varchar" maxlength=100;
 	property name="shipping_city"       type="string"  dbtype="varchar" maxlength=100;
+	property name="shipping_region"     type="string"  dbtype="varchar" maxlength=100;
 	property name="shipping_postcode"   type="string"  dbtype="varchar" maxlength=20;
 	property name="shipping_country"    type="string"  dbtype="char"    maxlength=2;
 
