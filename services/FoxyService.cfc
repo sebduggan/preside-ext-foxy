@@ -5,103 +5,74 @@
  */
 component {
 
-	/**
-	 * @foxyRC4.inject        foxyRC4
-	 */
-	public any function init( required any foxyRC4 ) {
-		_setFoxyRC4( arguments.foxyRC4 );
-
+	public any function init() {
 		return this;
 	}
 
 // PUBLIC API METHODS
-	public struct function processDatafeed( required string feedData ) {
-		var settings  = getFoxySettings();
-		var decoded   = urlDecode( arguments.feedData, "iso-8859-1" );
-		var xmlText   = _getFoxyRC4().rc4Decrypt( src=decoded, key=settings.api_key );
-		var xmlHash   = hash( xmlText );
-		var xmlParsed = xmlParse( xmlText );
-		var foxyData  = _xmlToStruct( xmlParsed ).foxyData;
-		var existing  = $getPresideObject( "foxy_datafeed" ).selectData( filter={ xml_hash=xmlHash }, selectFields=[ "id" ] );
+	public void function processTransaction( required string payload ) {
+		var transaction = deserializeJSON( arguments.payload );
+		var dao         = $getPresideObject( "foxy_transaction" );
+		var itemDao     = $getPresideObject( "foxy_transaction_item" );
+		var data        = {};
+		var itemData    = {};
 
-		if ( !existing.recordcount ) {
-			foxyData.datafeedId = $getPresideObject( "foxy_datafeed" ).insertData( {
-				  raw_xml  = xmlText
-				, xml_hash = xmlHash
-				, json     = serializeJSON( foxyData )
-			} );
-		} else {
-			foxyData.datafeedId = existing.id;
-		}
-
-		return foxyData;
-	}
-
-	public void function processTransactions( required array transactions, required string datafeedId ) {
-		transaction {
-			for( var transaction in arguments.transactions ) {
-				$announceInterception( "preFoxyProcessTransaction" , { transaction=transaction, datafeedId=arguments.datafeedId } );
-				processTransaction( transaction, arguments.datafeedId );
-				$announceInterception( "postFoxyProcessTransaction", { transaction=transaction, datafeedId=arguments.datafeedId } );
-			}
-		}
-	}
-
-	public void function processTransaction( required struct transaction, required string datafeedId ) {
-		var dao      = $getPresideObject( "foxy_transaction" );
-		var itemDao  = $getPresideObject( "foxy_transaction_item" );
-		var data     = {};
-		var itemData = {};
-
-		if ( dao.dataExists( filter={ transaction_id=arguments.transaction.id } ) ) {
+		if ( dao.dataExists( filter={ transaction_id=transaction.id } ) ) {
 			return;
 		}
 
+		$announceInterception( "preFoxyProcessTransaction" , { transaction=transaction } );
+
+		var billing  = transaction._embedded[ "fx:billing_addresses" ][ 1 ] ?: {};
+		var shipping = transaction._embedded[ "fx:shipments"         ][ 1 ] ?: {};
+		var payment  = transaction._embedded[ "fx:payments"          ][ 1 ] ?: {};
+		var items    = transaction._embedded[ "fx:items" ]                  ?: [];
+
 		data = {
-			  datafeed            = arguments.datafeedId
-			, transaction_id      = arguments.transaction.id                   ?: ""
-			, transaction_date    = arguments.transaction.transaction_date     ?: ""
-			, product_total       = arguments.transaction.product_total        ?: 0
-			, shipping_total      = arguments.transaction.shipping_total       ?: 0
-			, order_total         = arguments.transaction.order_total          ?: 0
-			, payment_gateway     = arguments.transaction.payment_gateway_type ?: ""
-			, receipt_url         = arguments.transaction.receipt_url          ?: ""
-			, customer_id         = arguments.transaction.customer_id          ?: ""
-			, customer_email      = arguments.transaction.customer_email       ?: ""
-			, customer_phone      = arguments.transaction.customer_phone       ?: ""
-			, customer_first_name = arguments.transaction.customer_first_name  ?: ""
-			, customer_last_name  = arguments.transaction.customer_last_name   ?: ""
-			, customer_address1   = arguments.transaction.customer_address1    ?: ""
-			, customer_address2   = arguments.transaction.customer_address2    ?: ""
-			, customer_city       = arguments.transaction.customer_city        ?: ""
-			, customer_postcode   = arguments.transaction.customer_postal_code ?: ""
-			, customer_country    = arguments.transaction.customer_country     ?: ""
-			, shipping_first_name = arguments.transaction.shipping_first_name  ?: ""
-			, shipping_last_name  = arguments.transaction.shipping_last_name   ?: ""
-			, shipping_address1   = arguments.transaction.shipping_address1    ?: ""
-			, shipping_address2   = arguments.transaction.shipping_address2    ?: ""
-			, shipping_city       = arguments.transaction.shipping_city        ?: ""
-			, shipping_postcode   = arguments.transaction.shipping_postal_code ?: ""
-			, shipping_country    = arguments.transaction.shipping_country     ?: ""
+			  payload             = arguments.payload
+			, transaction_id      = transaction.id                   ?: ""
+			, transaction_date    = transaction.transaction_date     ?: ""
+			, product_total       = transaction.total_item_price     ?: 0
+			, shipping_total      = transaction.total_shipping       ?: 0
+			, order_total         = transaction.total_order          ?: 0
+			, payment_gateway     = payment.gateway_type             ?: ""
+			, receipt_url         = transaction.receipt_url          ?: ""
+			, customer_id         = transaction.customer.id          ?: ""
+			, customer_email      = transaction.customer_email       ?: ""
+			, customer_first_name = transaction.customer_first_name  ?: ""
+			, customer_last_name  = transaction.customer_last_name   ?: ""
+			, customer_phone      = billing.customer_phone           ?: ""
+			, customer_address1   = billing.address1                 ?: ""
+			, customer_address2   = billing.address2                 ?: ""
+			, customer_city       = billing.city                     ?: ""
+			, customer_region     = billing.region                   ?: ""
+			, customer_postcode   = billing.customer_postal_code     ?: ""
+			, customer_country    = billing.customer_country         ?: ""
+			, shipping_first_name = shipping.first_name              ?: ""
+			, shipping_last_name  = shipping.last_name               ?: ""
+			, shipping_address1   = shipping.address1                ?: ""
+			, shipping_address2   = shipping.address2                ?: ""
+			, shipping_city       = shipping.city                    ?: ""
+			, shipping_region     = shipping.region                  ?: ""
+			, shipping_postcode   = shipping.postal_code             ?: ""
+			, shipping_country    = shipping.country                 ?: ""
 		};
-		$announceInterception( "preFoxyInsertTransaction", { data=data } );
+		$announceInterception( "preFoxyInsertTransaction", { transaction=transaction, data=data } );
 		var transactionId = dao.insertData( data );
 
-		var items = transaction.transaction_details ?: [];
-		if ( isStruct( items ) ) {
-			items = items.transaction_detail ?: [];
-		}
 		for( var item in items ) {
 			itemData = {
-				  code        = item.product_code     ?: ""
-				, quantity    = item.product_quantity ?: 0
-				, price       = item.product_price    ?: 0
+				  code        = item.code     ?: ""
+				, quantity    = item.quantity ?: 0
+				, price       = item.price    ?: 0
 				, transaction = transactionId
-				, product     = _getProductIdFromCode( item.product_code ?: "" )
+				, product     = _getProductIdFromCode( item.code ?: "" )
 			};
-			$announceInterception( "preFoxyInsertTransactionItem", { data=itemData } );
+			$announceInterception( "preFoxyInsertTransactionItem", { transaction=transaction, data=itemData } );
 			itemDao.insertData( itemData );
 		}
+
+		$announceInterception( "postFoxyProcessTransaction", { transaction=transaction } );
 	}
 
 	public string function hmacEncode( required string sku, required string name, required string value ) {
@@ -145,62 +116,6 @@ component {
 	private string function _getProductIdFromCode( required string code ) {
 		var product = $getPresideObject( "foxy_product" ).selectData( filter={ sku=arguments.code }, selectFields=[ "id" ] );
 		return product.id;
-	}
-
-	private any function _xmlToStruct( required xml xml ) {
-		var s = {};
-
-		if ( xmlGetNodeType( xml ) == "DOCUMENT_NODE" ) {
-			s[ structKeyList( xml ) ] = _xmlToStruct( xml[ structKeyList( xml ) ] );
-			return s;
-		}
-
-		if ( xml.keyExists( "xmlAttributes" ) && !xml.xmlAttributes.isEmpty() ) {
-			s.attributes = {};
-			for( var item in xml.xmlAttributes ) {
-				s.attributes[ item ] = xml.xmlAttributes[ item ];
-			}
-		}
-
-		if( xml.keyExists( "xmlText" ) && len( trim( xml.xmlText ) ) ) {
-			s.value = xml.xmlText;
-		}
-
-		if( xml.keyExists( "xmlChildren" ) && xml.xmlChildren.len() ) {
-			for( var i=1; i<=xml.xmlChildren.len(); i++ ) {
-
-				if ( s.keyExists( xml.xmlchildren[ i ].xmlname ) ) {
-					if ( !isArray( s[ xml.xmlChildren[ i ].xmlname ] ) ) {
-						var temp = s[ xml.xmlchildren[ i ].xmlname ];
-						s[ xml.xmlchildren[ i ].xmlname ] = [ temp ];
-					}
-					s[ xml.xmlchildren[ i ].xmlname ].append( _xmlToStruct( xml.xmlChildren[ i ] ) );
-				} else {
-					if ( xml.xmlChildren[i].keyExists( "xmlChildren" ) && xml.xmlChildren[ i ].xmlChildren.len() ) {
-						if ( xml.xmlChildren.len() == 1 ) {
-							s = [ _xmlToStruct( xml.xmlChildren[ i ] ) ];
-						} else {
-							s[ xml.xmlChildren[ i ].xmlName ] = _xmlToStruct( xml.xmlChildren[ i ] );
-						}
-					} else if ( xml.xmlChildren[i].keyExists( "xmlAttributes" ) && !xml.xmlChildren[ i ].xmlAttributes.isEmpty() ) {
-						s[ xml.xmlChildren[ i ].xmlName ] = _xmlToStruct( xml.xmlChildren[ i ] );
-					} else {
-						s[ xml.xmlChildren[ i ].xmlName ] = xml.xmlChildren[ i ].xmlText;
-					}
-				}
-			}
-		}
-
-		return s;
-	}
-
-
-// GETTERS & SETTERS
-	private any function _getFoxyRC4() {
-		return _foxyRC4;
-	}
-	private void function _setFoxyRC4( required any foxyRC4 ) {
-		_foxyRC4 = arguments.foxyRC4;
 	}
 
 }

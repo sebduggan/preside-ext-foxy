@@ -3,19 +3,25 @@ component {
 	property name="presideObjectService" inject="presideObjectService";
 	property name="foxyService"          inject="foxyService";
 
-	public string function datafeed( event, rc, prc, args={} ) {
-		var datafeed = rc.FoxyData ?: "";
+	public string function webhook( event, rc, prc, args={} ) {
+		var payload          = event.getHTTPContent();
+		var webhookEvent     = event.getHTTPHeader( "Foxy-Webhook-Event" );
+		var webhookSignature = event.getHTTPHeader( "Foxy-Webhook-Signature" );
+		var webhookRefeed    = event.getHTTPHeader( "Foxy-Webhook-Refeed" );
+		var storeId          = event.getHTTPHeader( "Foxy-Store-ID" );
+		var storeDomain      = event.getHTTPHeader( "Foxy-Store-Domain" );
 
 		try {
-			var foxyData     = foxyService.processDatafeed( datafeed );
-			var transactions = foxyData.transactions ?: [];
-
-			foxyService.processTransactions( transactions, foxyData.datafeedId );
-			event.renderData( type="text", data="foxy" );
+			if ( webhookEvent == "transaction/created" ) {
+				foxyService.processTransaction( payload );
+				event.renderData( type="text", data="Transaction processed" );
+			} else {
+				event.renderData( type="text", data="Unrecognised event", statusCode=500 );
+			}
 		}
 		catch( any e ) {
 			var message = e.message.len() ? e.message : e.detail;
-			event.renderData( type="text", data="Error: " & message );
+			event.renderData( type="text", data="Error: " & message, statusCode=500 );
 		}
 	}
 
