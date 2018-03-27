@@ -29,6 +29,6 @@ component {
 			, transformations = [ { method="resize", args={ width=400, quality="highQuality", maintainAspectRatio=true } } ]
 		};
 
-
+		settings.antiSamy.policy = "custom";
 	}
 }
