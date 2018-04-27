@@ -69,7 +69,7 @@
 				<h4>Out of stock</h4>
 			<cfelse>
 				<p class="foxy-action">
-					<input type="submit" value="#buttonLabel#" class="foxy-cart-submit">
+					<button type="submit" class="foxy-cart-submit">#buttonLabel#</button>
 				</p>
 
 				<cfif shippingRates.recordCount>
