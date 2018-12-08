@@ -7,6 +7,7 @@
 	discountPrice  = args.discount_price ?: "";
 	discountLabel  = args.discount_label ?: "";
 	discountStrap  = args.discount_strap ?: "";
+	coupon         = args.coupon         ?: "";
 	formAction     = args.formAction     ?: "";
 	currencyCode   = args.currencyCode   ?: "";
 	currencySymbol = args.currencySymbol ?: "";
@@ -42,6 +43,9 @@
 				<input type="hidden" name="code||#product.hmac.code#" value="#product.code#">
 				<input type="hidden" name="image||#product.hmac.image#" value="#product.image#">
 				<input type="hidden" name="url||#product.hmac.url#" value="#product.url#">
+				<cfif len( coupon )>
+					<input type="hidden" name="coupon" value="#coupon#">
+				</cfif>
 			</cfif>
 
 			<cfif showImage>

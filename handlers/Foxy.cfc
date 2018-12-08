@@ -2,6 +2,7 @@ component {
 
 	property name="presideObjectService" inject="presideObjectService";
 	property name="foxyService"          inject="foxyService";
+	property name="sessionStorage"       inject="sessionStorage";
 
 	public string function webhook( event, rc, prc, args={} ) {
 		var payload          = event.getHTTPContent();
@@ -59,6 +60,7 @@ component {
 		args.currencyCode   = settings.currency_code;
 		args.currencySymbol = settings.currency_symbol;
 		args.shippingRates  = foxyService.getShippingRates( args.foxy_shipping ?: "" );
+		args.coupon         = sessionStorage.getVar( name="foxy_coupon", default="" );
 
 		foxyService.includeLoaderJs( event );
 
