@@ -26,6 +26,9 @@ component {
 		}
 	}
 
+	/**
+	 * @cacheable  false
+	 */
 	private string function _renderForm( event, rc, prc, args={} ) {
 		var settings     = foxyService.getFoxySettings();
 		var productQuery = presideObjectService.selectData(
