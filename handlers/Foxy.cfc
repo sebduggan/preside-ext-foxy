@@ -54,6 +54,8 @@ component {
 			if ( isNumeric( discountPrice ) ) {
 				product.discount      = "#discountCode#{all-units|0-#product.price - discountPrice#}";
 				product.hmac.discount = foxyService.hmacEncode( product.sku, "discount_price_amount", product.discount );
+			} else if ( len( args.discount_code ?: "" ) ) {
+				args.coupon = args.discount_code;
 			}
 			break;
 		}
@@ -63,7 +65,7 @@ component {
 		args.currencyCode   = settings.currency_code;
 		args.currencySymbol = settings.currency_symbol;
 		args.shippingRates  = foxyService.getShippingRates( args.foxy_shipping ?: "" );
-		args.coupon         = sessionStorage.getVar( name="foxy_coupon", default="" );
+		args.coupon         = args.coupon ?: sessionStorage.getVar( name="foxy_coupon", default="" );
 
 		foxyService.includeLoaderJs( event );
 
