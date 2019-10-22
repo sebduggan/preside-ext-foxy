@@ -17,5 +17,10 @@
 			<field name="discount_strap" />
 			<field name="discount_label" />
 		</fieldset>
+		<fieldset id="coupons">
+			<field name="display_price" type="numeric" />
+			<field name="coupon_code"  maxlength="15" />
+			<field name="coupon_label" />
+		</fieldset>
 	</tab>
 </form>
