@@ -7,6 +7,8 @@
 	discountPrice  = args.discount_price ?: "";
 	discountLabel  = args.discount_label ?: "";
 	discountStrap  = args.discount_strap ?: "";
+	displayPrice   = args.display_price  ?: "";
+	couponLabel    = args.coupon_label   ?: "";
 	coupon         = args.coupon         ?: "";
 	formAction     = args.formAction     ?: "";
 	currencyCode   = args.currencyCode   ?: "";
@@ -55,17 +57,22 @@
 			<cfif len( discountStrap )>
 				<p class="foxy-discount-strap"><strong>#discountStrap#</strong></p>
 			</cfif>
-			<cfif isNumeric( discountPrice )>
+			<cfif isNumeric( discountPrice ) or isNumeric( displayPrice )>
 				<p class="foxy-rsp">
 					<del>#currencySymbol##decimalFormat( product.price )#</del>
 					<cfif len( discountLabel )>
 						<br>
 						<strong>#discountLabel#</strong>
 					</cfif>
+					<cfif len( couponLabel )>
+						<br>
+						<strong>#couponLabel#</strong>
+					</cfif>
 				</p>
 			</cfif>
 			<h3 itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-				#currencySymbol#<span itemprop="price">#decimalformat( isNumeric( discountPrice ) ? discountPrice : product.price )#</span>
+				#currencySymbol#<span>#decimalformat( isNumeric( displayPrice ) ? displayPrice : ( isNumeric( discountPrice ) ? discountPrice : product.price ) )#</span>
+				<meta itemprop="price" content="#decimalformat( isNumeric( discountPrice ) ? discountPrice : product.price )#">
 				<meta itemprop="priceCurrency" content="#currencyCode#">
 			</h3>
 
